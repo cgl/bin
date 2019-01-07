@@ -1,7 +1,9 @@
-git co development
+git checkout development
 git fetch
+
 new_requirements=false
-for filename in `git diff --name-only origin/development`; do [[ "main/slack.py" == $filename ]] && new_requirements=true ; done
+for filename in `git diff --name-only origin/development`; do [[ $filename =~ requirements/.*.txt ]] && new_requirements=true ; done
+
 git pull
 if $new_requirements ; then
     pip install -r requirements.txt
