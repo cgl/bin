@@ -1,0 +1,150 @@
+(setq mac-option-key-is-meta nil)
+(setq mac-command-key-is-meta t)
+(setq mac-command-modifier 'meta)
+(setq mac-option-modifier nil)
+;; https://stackoverflow.com/a/8989982/1257959
+;; (setq ns-right-option-modifier 'super)
+(setq ns-function-modifier 'super)
+;;
+
+;; INSTALL PACKAGES
+;; --------------------------------------
+
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("marmalade" . "https://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.org/packages/")))
+(require 'package)
+(require 'use-package)
+
+;;;;;;;;;;
+; https://www.reddit.com/r/emacs/comments/5avfin/symbols_function_definition_is_void/d9jyr3t
+(package-initialize nil)
+(setq package-enable-at-startup nil)
+;; package setup here
+(package-initialize)
+;;;;;;;;;;
+
+(when (not package-archive-contents)
+  (package-refresh-contents))
+
+(defvar myPackages
+  '(;better-defaults
+    rjsx-mode
+    elpy
+    flycheck
+    py-isort
+    material-theme))
+
+(mapc #'(lambda (package)
+    (unless (package-installed-p package)
+      (package-install package)))
+      myPackages)
+;;;;;;;;;;;
+
+
+
+;; BASIC CUSTOMIZATION
+;; --------------------------------------
+
+;;(setq inhibit-startup-message t) ;; hide the startup message
+(global-linum-mode t) ;; enable line numbers globally
+;;;;;;;;
+
+;; MY hooks
+(add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+
+;; ELPY
+(setq python-python-command "/usr/local/bin/python3")
+;; https://realpython.com/blog/python/emacs-the-best-python-editor/
+;; Automatic Indentation,
+;; Syntax Highlighting,
+;; Auto-Completion,
+;; Syntax Checking,
+;; Python REPL Integration,
+;; Virtual Environment Support
+(elpy-enable)
+
+(when (require 'flycheck nil t)
+  (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
+  (add-hook 'elpy-mode-hook 'flycheck-mode))
+;;(setq venv-location "/Users/cagil/virtuals/")
+(setenv "WORKON_HOME" "/Users/cagil/virtuals/")
+;;;
+
+;;; ISORT AND BLACK
+(add-to-list 'load-path "/Users/cagil/work/knowledge-engine/")
+(require 'py-isort)
+(add-hook 'before-save-hook 'py-isort-before-save)
+(setq py-isort-options '("--lines=100"))
+(add-hook 'before-save-hook 'elpy-black-fix-code)
+;;;
+
+
+;;;;;; PYENV
+;; http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
+(defvar pyenv-current-version nil nil)
+
+(defun pyenv-init()
+  "Initialize pyenv's current version to the global one."
+  (let ((global-pyenv (replace-regexp-in-string "\n" "" (shell-command-to-string "pyenv global"))))
+    (message (concat "Setting pyenv version to " global-pyenv))
+    (pyenv-mode-set global-pyenv)
+    (setq pyenv-current-version global-pyenv)))
+
+(add-hook 'after-init-hook 'pyenv-init)
+
+;;;;;;
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (use-package htmlize ox-reveal org-plus-contrib rjsx-mode better-defaults flycheck auctex))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+(setenv "PATH" "/usr/local/bin:/Library/TeX/texbin/:$PATH" t)
+(setq exec-path (append exec-path '("/Library/TeX/texbin")))
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+;; Backups
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+
+(message "Deleting old backup files...")
+(let ((week (* 60 60 24 7))
+      (current (float-time (current-time))))
+  (dolist (file (directory-files temporary-file-directory t))
+    (when (and (backup-file-name-p file)
+               (> (- current (float-time (nth 5 (file-attributes file))))
+                  week))
+      (message "%s" file)
+      (delete-file file))))
+;;;;;;;;;;;
+
+;;; REVEAL
+;; Reveal.js + Org mode
+;; (require 'ox-reveal)
+
+;; (use-package ox-reveal
+;; :ensure ox-reveal)
+
+;; (setq org-reveal-root "file:////Users/cagil/Documents/talks/slack-talk/js/reveal.js")
+;; (setq org-reveal-mathjax t)
+
+;; (use-package htmlize
+;; :ensure t)
+;;;;
