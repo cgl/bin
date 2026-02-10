@@ -1,123 +1,116 @@
+;;; .emacs-v2 --- Emacs configuration for macOS Monterey
+;;; Commentary:
+;;; This configuration is optimized for macOS Monterey with Python development support
+;;; Code:
+
+;; ============================================================================
+;; MACOS KEY BINDINGS
+;; ============================================================================
+;; Monterey compatible keybindings
 (setq mac-option-key-is-meta nil)
 (setq mac-command-key-is-meta t)
 (setq mac-command-modifier 'meta)
 (setq mac-option-modifier nil)
-;; https://stackoverflow.com/a/8989982/1257959
-;; (setq ns-right-option-modifier 'super)
 (setq ns-function-modifier 'super)
-;;
+;; Reference: https://stackoverflow.com/a/8989982/1257959
 
-;; INSTALL PACKAGES
-;; --------------------------------------
-
-
-(setq package-archives '(
-			 ;; ("gnu" . "https://elpa.gnu.org/packages/")
-                         ("marmalade" . "https://marmalade-repo.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")))
+;; ============================================================================
+;; PACKAGE INITIALIZATION
+;; ============================================================================
 (require 'package)
+(setq package-archives '(("melpa" . "https://melpa.org/packages/")
+                         ("melpa-stable" . "https://stable.melpa.org/packages/")
+                         ("gnu" . "https://elpa.gnu.org/packages/")))
+
 (package-initialize)
+
+;; Ensure use-package is installed
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+
 (require 'use-package)
+(setq use-package-always-ensure t)
 
-;;;;;;;;;;
-; https://www.reddit.com/r/emacs/comments/5avfin/symbols_function_definition_is_void/d9jyr3t
-(package-initialize nil)
-(setq package-enable-at-startup nil)
-;; package setup here
-
-;;;;;;;;;;
-
-(package-refresh-contents)
-;;(when (not package-archive-contents)
-;;  (package-refresh-contents))
-
-(defvar myPackages
-  '(;better-defaults
+;; ============================================================================
+;; PACKAGE INSTALLATION
+;; ============================================================================
+(defvar my-packages
+  '(exec-path-from-shell
     rjsx-mode
     elpy
     flycheck
     py-isort
-    exec-path-from-shell
     material-theme))
 
-(mapc #'(lambda (package)
-    (unless (package-installed-p package)
-      (package-install package)))
-      myPackages)
-;;;;;;;;;;;
+(dolist (package my-packages)
+  (unless (package-installed-p package)
+    (package-install package)))
 
-;; https://github.com/purcell/exec-path-from-shell
+;; ============================================================================
+;; ENVIRONMENT SETUP
+;; ============================================================================
+;; Initialize PATH from shell for Monterey
 (when (memq window-system '(mac ns x))
-  (exec-path-from-shell-initialize))
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-envs '("PATH" "PYENV_ROOT" "WORKON_HOME")))
 
+;; TeX support for Monterey
+(setenv "PATH" "/usr/local/bin:/Library/TeX/texbin:$PATH" t)
+(setq exec-path (append exec-path '("/Library/TeX/texbin")))
+
+;; ============================================================================
 ;; BASIC CUSTOMIZATION
-;; --------------------------------------
+;; ============================================================================
+(global-linum-mode t)  ; Enable line numbers globally
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
 
-;;(setq inhibit-startup-message t) ;; hide the startup message
-(global-linum-mode t) ;; enable line numbers globally
-;;;;;;;;
-
-;; MY hooks
+;; ============================================================================
+;; HOOKS
+;; ============================================================================
+;; Clean up trailing whitespace before saving
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+;; ============================================================================
+;; PYTHON ENVIRONMENT SETUP
+;; ============================================================================
+;; Use pyenv shim for Python
+(setq python-python-command "python3")
+(setq elpy-rpc-python-command "python3")
 
-;; ELPY
-(setq python-python-command "/Users/cagil/.pyenv/shims/python3")
-;;(setq python-python-command "/usr/local/bin/python3")
-;; https://realpython.com/blog/python/emacs-the-best-python-editor/
-;; Automatic Indentation,
-;; Syntax Highlighting,
-;; Auto-Completion,
-;; Syntax Checking,
-;; Python REPL Integration,
-;; Virtual Environment Support
+;; Virtual environment setup
+(setenv "WORKON_HOME" "/Users/cagil/work/virts/")
+
+;; ============================================================================
+;; ELPY CONFIGURATION
+;; ============================================================================
+;; Enable Elpy for Python development
 (elpy-enable)
 
+;; Use Flycheck instead of Flymake
 (when (require 'flycheck nil t)
   (setq elpy-modules (delq 'elpy-module-flymake elpy-modules))
   (add-hook 'elpy-mode-hook 'flycheck-mode))
 
-;;(setq venv-location "/Users/cagil/virtuals/")
-(setenv "WORKON_HOME" "/Users/cagil/virtuals/")
-(setenv "WORKON_HOME" "/Users/cagil/work/virts/")
-;;;
-
-;;; ISORT AND BLACK
-(add-to-list 'load-path "/Users/cagil/work/knowledge-engine/")
+;; ============================================================================
+;; ISORT CONFIGURATION
+;; ============================================================================
+;; Auto-format imports on save
 (require 'py-isort)
 (add-hook 'before-save-hook 'py-isort-before-save)
 (setq py-isort-options '("--lines=100"))
-;(add-hook 'before-save-hook 'elpy-black-fix-code)
-;;;
 
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(elpy-rpc-python-command "python3")
- '(package-selected-packages
-   (quote
-    (exec-path-from-shell use-package htmlize ox-reveal org-plus-contrib rjsx-mode better-defaults flycheck auctex))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-(setenv "PATH" "/usr/local/bin:/Library/TeX/texbin/:$PATH" t)
-(setq exec-path (append exec-path '("/Library/TeX/texbin")))
-(put 'upcase-region 'disabled nil)
-(put 'downcase-region 'disabled nil)
-
-;; Backups
+;; ============================================================================
+;; BACKUP AND AUTO-SAVE CONFIGURATION
+;; ============================================================================
+;; Store backups and auto-saves in temp directory
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 
+;; Clean up old backup files (older than 1 week)
 (message "Deleting old backup files...")
 (let ((week (* 60 60 24 7))
       (current (float-time (current-time))))
@@ -125,52 +118,21 @@
     (when (and (backup-file-name-p file)
                (> (- current (float-time (nth 5 (file-attributes file))))
                   week))
-      (message "%s" file)
+      (message "Deleting backup: %s" file)
       (delete-file file))))
-;;;;;;;;;;;
 
-;;; REVEAL
-;; Reveal.js + Org mode
-;; (require 'ox-reveal)
+;; ============================================================================
+;; CUSTOM SETTINGS (Auto-generated)
+;; ============================================================================
+(custom-set-variables
+ '(elpy-rpc-python-command "python3")
+ '(package-selected-packages
+   '(exec-path-from-shell use-package rjsx-mode flycheck py-isort material-theme)))
 
-;; (use-package ox-reveal
-;; :ensure ox-reveal)
+(custom-set-faces)
 
-;; (setq org-reveal-root "file:////Users/cagil/Documents/talks/slack-talk/js/reveal.js")
-;; (setq org-reveal-mathjax t)
-
-;; (use-package htmlize
-;; :ensure t)
-;;;;
-
-
-;;;;;; PYENV
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; http://rakan.me/emacs/python-dev-with-emacs-and-pyenv/
-;;(defvar pyenv-current-version nil nil)
-;; (defun pyenv-init()										       ;;
-;;   "Initialize pyenv's current version to the global one."					       ;;
-;;   (let ((global-pyenv (replace-regexp-in-string "\n" "" (shell-command-to-string "pyenv global")))) ;;
-;;     (message (concat "Setting pyenv version to " global-pyenv))				       ;;
-;;     (pyenv-mode-set global-pyenv)								       ;;
-;;     (setq pyenv-current-version global-pyenv)))						       ;;
-;; 												       ;;
-;; (add-hook 'after-init-hook 'pyenv-init)							       ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ; https://github.com/pythonic-emacs/pyenv-mode#projectile-integration       ;;
-;; (pyenv-mode)								       ;;
-;; (require 'pyenv-mode)						       ;;
-;; 									       ;;
-;; (defun projectile-pyenv-mode-set ()					       ;;
-;;   "Set pyenv version matching project name."				       ;;
-;;   (let ((project (projectile-project-name)))				       ;;
-;;     (if (member project (pyenv-mode-versions))			       ;;
-;;         (pyenv-mode-set project)					       ;;
-;;       (pyenv-mode-unset))))						       ;;
-;; 									       ;;
-;; (add-hook 'projectile-after-switch-project-hook 'projectile-pyenv-mode-set) ;;
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;;;;
+;; ============================================================================
+;; END OF CONFIGURATION
+;; ============================================================================
+(provide '.emacs-v2)
+;;; .emacs-v2 ends here
