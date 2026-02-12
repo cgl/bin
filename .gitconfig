@@ -26,6 +26,10 @@
 [core]
     whitespace = fix,-indent-with-non-tab,trailing-space,cr-at-eol
     editor = ec
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
 
 [alias]
     st = status
@@ -86,3 +90,9 @@
 [gpg "ssh"]
     allowedSignersFile = /Users/cagilsonmez/.ssh/allowed_signers
     program = ssh-keygen
+
+[delta]
+    navigate = true
+    light = false
+    side-by-side = true
+    features = solarized-dark
