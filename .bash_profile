@@ -32,7 +32,10 @@ PATH="/usr/local/opt/openssl@1.1/bin:$PATH"
 PATH="/usr/local/opt/ruby/bin:/usr/local/lib/ruby/gems/3.0.0/bin:$PATH"
 PATH="/Applications/Emacs.app/Contents/MacOS/bin:$PATH"
 
+PATH="~/.npm-global/bin:$PATH"
 export PATH
+
+export PYENV_ROOT="$HOME/.pyenv"
 
 alias compare='git diff -- @{upstream}'
 
@@ -40,6 +43,3 @@ alias compare='git diff -- @{upstream}'
 alias em='emacsclient -c -n' #
 export EDITOR='emacsclient -c'
 export VISUAL='emacsclient -c'
-
-export PATH="~/.npm-global/bin:$PATH"
-export PYENV_ROOT="$HOME/.pyenv"
