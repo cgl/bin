@@ -58,6 +58,7 @@
         markdown-mode                   ; markdown-mode for github posts
         org                             ; use a more recent than default emacs
         paredit                         ; excellet for lisp, but steep lerning, for parenthesis manegement
+        popup-kill-ring                 ; popup-based kill-ring browser
         rainbow-mode                    ; Colour hex rgb values, e.q. "#00ff00" in it's colour
         ;;smex                            ; smarter "M-x"
         sml-modeline                    ; I use it to replaces scrollbar, show info in modeline instead
@@ -114,7 +115,7 @@
 
 ;; BASIC CUSTOMIZATION
 ;; --------------------------------------
-(global-linum-mode t) ;; enable line numbers globally
+(global-display-line-numbers-mode t) ;; enable line numbers globally
 ;;Modline-------------------------------------
 (line-number-mode t)                        ;; show line numbers
 (column-number-mode t)                      ;; show column numbers
@@ -182,9 +183,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (zenburn-theme which-key volatile-highlights sml-modeline rainbow-mode paredit markdown-mode magit lua-mode htmlize green-phosphor-theme graphviz-dot-mode goto-chg gnuplot geiser dtrt-indent company-auctex command-log-mode color-theme-sanityinc-tomorrow browse-kill-ring beacon avy material-theme web-mode elpy popup-kill-ring rjsx-mode better-defaults flycheck auctex))))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

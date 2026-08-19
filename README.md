@@ -30,7 +30,13 @@ To use these configuration files and scripts:
 1. Clone the repository
 2. Copy `.emacs-v2` to your home directory as `.emacs` (or configure your Emacs to use it)
 3. Make the shell scripts executable: `chmod +x *.sh`
-4. Update any hardcoded paths in `.emacs-v2` to match your system setup
+4. Install the `ec` Emacs client wrapper:
+
+   ```bash
+   ln -s ~/work/bin/ec /usr/local/ec
+   ```
+
+5. Update any hardcoded paths in `.emacs-v2` to match your system setup
 
 ## Emacs Configuration (.emacs-v2)
 
